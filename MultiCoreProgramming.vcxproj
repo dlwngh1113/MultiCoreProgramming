@@ -142,6 +142,9 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sendrecv.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
