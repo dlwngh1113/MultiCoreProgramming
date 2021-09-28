@@ -5,37 +5,60 @@ using namespace chrono;
 
 volatile int sum;
 
-volatile int flag[2] = { false, false };
-volatile bool victim = 0;
+constexpr int MAX_THREADS = 8;
 
-void p_lock(int my_id)
+volatile bool flag[MAX_THREADS];
+volatile int label[MAX_THREADS];
+
+void Init()
 {
-	int other = 1 - my_id;
-	flag[my_id] = true;
-	victim = my_id;
-	while ((flag[other] == true) && my_id == victim);
+	for (int i = 0; i < MAX_THREADS; ++i)
+	{
+		flag[i] = false;
+		label[i] = 0;
+	}
 }
 
-void p_unlock(int my_id)
+void lock(int threadNum, int my_id)
+{
+	flag[my_id] = true;
+	label[my_id] = max(label[0], label[threadNum]) + 1;
+	bool tmpFlag = true;
+	for (auto i = 0; i < threadNum; ++i)
+	{
+		while (tmpFlag)
+		{
+			if (flag[i] && (label[i] < label[my_id]))
+				tmpFlag = true;
+			else if (flag[i] && (label[i] == label[my_id]) && (i < my_id))
+				tmpFlag = true;
+			else
+				break;
+		}
+	}
+}
+
+void unlock(int my_id)
 {
 	flag[my_id] = false;
 }
 
 void worker(int threadNum, int my_id)
 {
-	const int loops = 50'000'000 / threadNum;
+	const int loops = 5'000'000 / threadNum;
 	for (auto i = 0; i < loops; ++i) {
-		p_lock(my_id);
+		lock(threadNum, my_id);
 		sum += 2;
-		p_unlock(my_id);
+		unlock(my_id);
 	}
 }
 
 int main()
 {
-	for (int i = 2; i <= 2; i *= 2)
+	for (int i = 1; i <= MAX_THREADS; i *= 2)
 	{
 		sum = 0;
+		Init();
 		vector<thread> workers;
 		auto beg = high_resolution_clock::now();
 		for (int j = 0; j < i; ++j)
