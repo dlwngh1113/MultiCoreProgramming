@@ -3,30 +3,46 @@
 using namespace std;
 using namespace chrono;
 
-const int MAX_THREAD = 8;
+constexpr int MAX_THREAD = 2;
 
 volatile int sum;
-mutex myLock;
 
-void worker(int threadNum)
+volatile int flag[2] = { false, false };
+volatile bool victim = 0;
+
+void p_lock(int my_id)
 {
-	const int loops = 5'000'000 / threadNum;
+	int other = 1 - my_id;
+	flag[my_id] = true;
+	victim = my_id;
+	atomic_thread_fence(memory_order_seq_cst);
+	while ((flag[other] == true) && my_id == victim);
+}
+
+void p_unlock(int my_id)
+{
+	flag[my_id] = false;
+}
+
+void worker(int threadNum, int my_id)
+{
+	const int loops = 50'000'000 / threadNum;
 	for (auto i = 0; i < loops; ++i) {
-		myLock.lock();
+		p_lock(my_id);
 		sum += 2;
-		myLock.unlock();
+		p_unlock(my_id);
 	}
 }
 
 int main()
 {
-	for (int i = 1; i <= MAX_THREAD; i *= 2)
+	for (int i = 2; i <= MAX_THREAD; i *= 2)
 	{
 		sum = 0;
 		vector<thread> workers;
 		auto beg = high_resolution_clock::now();
 		for (int j = 0; j < i; ++j)
-			workers.emplace_back(worker, i);
+			workers.emplace_back(worker, i, j);
 		for (auto& t : workers)
 			t.join();
 		auto end = high_resolution_clock::now();
