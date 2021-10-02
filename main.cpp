@@ -1,52 +1,48 @@
 #include"stdafx.h"
 
 using namespace std;
-using namespace chrono;
 
-constexpr int MAX_THREAD = 2;
+const auto SIZE = 50'000'000;
+volatile int x, y;
+int trace_x[SIZE], trace_y[SIZE];
 
-volatile int sum;
-
-volatile int flag[2] = { false, false };
-volatile bool victim = 0;
-
-void p_lock(int my_id)
+void ThreadFunc1()
 {
-	int other = 1 - my_id;
-	flag[my_id] = true;
-	victim = my_id;
-	atomic_thread_fence(memory_order_seq_cst);
-	while ((flag[other] == true) && my_id == victim);
+	for (int i = 0; i < SIZE; ++i)
+	{
+		x = i;
+		trace_y[i] = y;
+	}
 }
 
-void p_unlock(int my_id)
+void ThreadFunc2()
 {
-	flag[my_id] = false;
-}
-
-void worker(int threadNum, int my_id)
-{
-	const int loops = 50'000'000 / threadNum;
-	for (auto i = 0; i < loops; ++i) {
-		p_lock(my_id);
-		sum += 2;
-		p_unlock(my_id);
+	for (int i = 0; i < SIZE; ++i)
+	{
+		y = i;
+		trace_x[i] = x;
 	}
 }
 
 int main()
 {
-	for (int i = 2; i <= MAX_THREAD; i *= 2)
+	thread t1{ ThreadFunc1 };
+	thread t2{ ThreadFunc2 };
+	t1.join();
+	t2.join();
+
+	int cnt = 0;
+
+	for (int i = 0; i < SIZE; ++i)
 	{
-		sum = 0;
-		vector<thread> workers;
-		auto beg = high_resolution_clock::now();
-		for (int j = 0; j < i; ++j)
-			workers.emplace_back(worker, i, j);
-		for (auto& t : workers)
-			t.join();
-		auto end = high_resolution_clock::now();
-		cout << "thread count:" << i << "	milliseconds: " << duration_cast<milliseconds>(end - beg).count() << "msecs";
-		cout << "	Sum = " << sum << endl;
+		if (trace_x[i] == trace_x[i + 1])
+		{
+			if (trace_y[trace_x[i]] == trace_y[trace_x[i] + 1])
+			{
+				if (trace_y[trace_x[i]] != i)continue;
+				cnt++;
+			}
+		}
 	}
+	cout << "Total Memory Inconsistency: " << cnt << endl;
 }
