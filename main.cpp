@@ -1,44 +1,49 @@
 #include"stdafx.h"
 
 using namespace std;
+using namespace chrono;
 
-volatile bool done = false;
-volatile int* bound;
-int error{ 0 };
-mutex l;
+volatile int sum;
 
-void Threadfunc1()
+atomic< int> flag[2] = { false, false };
+atomic<bool> victim = 0;
+
+void p_lock(int my_id)
 {
-	for (int i = 0; i < 25'000'000; ++i)
-	{
-		*bound = -(1 + *bound);
-	}
-	done = true;
+	int other = 1 - my_id;
+	flag[my_id] = true;
+	victim = my_id;
+	while ((flag[other] == true) && my_id == victim);
 }
 
-void Threadfunc2()
+void p_unlock(int my_id)
 {
-	while (false == done)
-	{
-		int v = *bound;
-		if (v != 0 && v != -1) {
-			cout << hex << v << '\t';
-			++error;
-		}
+	flag[my_id] = false;
+}
+
+void worker(int threadNum, int my_id)
+{
+	const int loops = 50'000'000 / threadNum;
+	for (auto i = 0; i < loops; ++i) {
+		p_lock(my_id);
+		sum += 2;
+		p_unlock(my_id);
 	}
 }
 
 int main()
 {
-	int arr[64];
-	long long temp = reinterpret_cast<long long>(arr + 16);
-	temp = temp & 0xFFFFFFFFFFFFFFC0;
-	temp -= 2;
-	bound = reinterpret_cast<int*>(temp);
-	*bound = 0;
-	thread t1{ Threadfunc1 };
-	thread t2{ Threadfunc2 };
-	t1.join();
-	t2.join();
-	cout << "error count: " << error << endl;
+	for (int i = 2; i <= 2; i *= 2)
+	{
+		sum = 0;
+		vector<thread> workers;
+		auto beg = high_resolution_clock::now();
+		for (int j = 0; j < i; ++j)
+			workers.emplace_back(worker, i, j);
+		for (auto& t : workers)
+			t.join();
+		auto end = high_resolution_clock::now();
+		cout << "thread count:" << i << "	milliseconds: " << duration_cast<milliseconds>(end - beg).count() << "msecs";
+		cout << "	Sum = " << sum << endl;
+	}
 }
