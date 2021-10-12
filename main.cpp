@@ -1,4 +1,4 @@
-#include"FList.h"
+#include"OList.h"
 
 using namespace std;
 using namespace chrono;
@@ -7,7 +7,7 @@ constexpr int NUM_TEST = 4'000'000;
 constexpr int MAX_THREADS = 8;
 constexpr int NUM_RANGE = 1000;
 
-FList list;
+OList list;
 set<int> s;
 
 void Benchmark(int num_threads)
