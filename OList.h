@@ -3,12 +3,12 @@
 
 class OList
 {
-	FNode head, tail;
+	LNode head, tail;
 public:
 	void Init();
 	OList();
 	virtual ~OList();
-	bool Validate(FNode* pre, FNode* cur);
+	bool Validate(LNode* pre, LNode* cur);
 	bool Add(int x);
 	bool Remove(int x);
 	bool Contains(int x);

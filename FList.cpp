@@ -16,7 +16,7 @@ void FList::Init()
 {
 	while (head.next != &tail)
 	{
-		FNode* p = head.next;
+		LNode* p = head.next;
 		head.next = p->next;
 		delete p;
 	}
@@ -24,7 +24,7 @@ void FList::Init()
 
 bool FList::Add(int x)
 {
-	FNode* pre, * cur;
+	LNode* pre, * cur;
 	head.nodeLock.lock();
 	pre = &head;
 
@@ -45,7 +45,7 @@ bool FList::Add(int x)
 		return false;
 	}
 
-	FNode* nNode = new FNode(x);
+	LNode* nNode = new LNode(x);
 	pre->next = nNode;
 	nNode->next = cur;
 	cur->nodeLock.unlock();
@@ -55,7 +55,7 @@ bool FList::Add(int x)
 
 bool FList::Remove(int x)
 {
-	FNode* pre, * cur;
+	LNode* pre, * cur;
 	head.nodeLock.lock();
 	pre = &head;
 
@@ -86,7 +86,7 @@ bool FList::Remove(int x)
 
 bool FList::Contains(int x)
 {
-	FNode* cur;
+	LNode* cur;
 	head.nodeLock.lock();
 	cur = &head;
 
@@ -109,7 +109,7 @@ bool FList::Contains(int x)
 
 void FList::Print20()
 {
-	FNode* p = head.next;
+	LNode* p = head.next;
 	for (int i = 0; i < 20; ++i)
 	{
 		if (p == &tail)

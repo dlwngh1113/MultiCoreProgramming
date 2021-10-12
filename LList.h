@@ -6,16 +6,19 @@ public:
 	int value;
 	LNode* next;
 	std::mutex nodeLock;
-	LNode() :value{ 0 }, next{ nullptr }{}
-	LNode(int x) :value{ x }, next{ nullptr } {}
+	bool marked;
+	LNode() :value{ 0 }, next{ nullptr }, marked{ false }{}
+	LNode(int x) :value{ x }, next{ nullptr }, marked{ false } {}
 	virtual ~LNode() {}
 };
 
-class FList {
+class LList
+{
 	LNode head, tail;
 public:
-	FList();
-	~FList();
+	LList();
+	virtual ~LList();
+	bool Validate(LNode* pre, LNode* cur);
 	void Init();
 	bool Add(int x);
 

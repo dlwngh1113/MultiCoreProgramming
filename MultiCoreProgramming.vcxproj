@@ -144,6 +144,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="FList.cpp" />
+    <ClCompile Include="LList.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -155,6 +156,7 @@
   <ItemGroup>
     <ClInclude Include="CList.h" />
     <ClInclude Include="FList.h" />
+    <ClInclude Include="LList.h" />
     <ClInclude Include="OList.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

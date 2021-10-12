@@ -1,6 +1,6 @@
-#include "OList.h"
+#include "LList.h"
 
-void OList::Init()
+void LList::Init()
 {
 	while (head.next != &tail)
 	{
@@ -10,31 +10,26 @@ void OList::Init()
 	}
 }
 
-OList::OList()
+LList::LList()
 {
 	head.value = 0x80000000;
 	tail.value = 0x7FFFFFFF;
 	head.next = &tail;
 }
 
-OList::~OList()
+LList::~LList()
 {
 	Init();
 }
 
-bool OList::Validate(LNode* pre, LNode* cur)
+bool LList::Validate(LNode* pre, LNode* cur)
 {
-	LNode* node = &head;
-	while (node->value <= pre->value)
-	{
-		if (node == pre)
-			return pre->next == cur;
-		node = node->next;
-	}
-	return false;
+	return (false == pre->marked) &&
+		(false == cur->marked) &&
+		(pre->next == cur);
 }
 
-bool OList::Add(int x)
+bool LList::Add(int x)
 {
 	LNode* pre, * cur;
 
@@ -49,7 +44,7 @@ bool OList::Add(int x)
 		pre->nodeLock.lock();
 		cur->nodeLock.lock();
 
-		if (Validate(pre, cur)) 
+		if (Validate(pre, cur))
 		{
 			if (cur->value == x)
 			{
@@ -73,7 +68,7 @@ bool OList::Add(int x)
 	}
 }
 
-bool OList::Remove(int x)
+bool LList::Remove(int x)
 {
 	LNode* pre, * cur;
 
@@ -92,6 +87,7 @@ bool OList::Remove(int x)
 		{
 			if (cur->value == x)
 			{
+				cur->marked = true;
 				pre->next = cur->next;
 				pre->nodeLock.unlock();
 				cur->nodeLock.unlock();
@@ -112,7 +108,7 @@ bool OList::Remove(int x)
 	}
 }
 
-bool OList::Contains(int x)
+bool LList::Contains(int x)
 {
 	LNode* pre, * cur;
 
@@ -151,7 +147,7 @@ bool OList::Contains(int x)
 	}
 }
 
-void OList::Print20()
+void LList::Print20()
 {
 	LNode* p = head.next;
 	for (int i = 0; i < 20; ++i)
