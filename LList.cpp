@@ -110,41 +110,14 @@ bool LList::Remove(int x)
 
 bool LList::Contains(int x)
 {
-	LNode* pre, * cur;
+	LNode* cur;
 
-	while (true) {
-		pre = &head;
-		cur = pre->next;
-		while (cur->value < x)
-		{
-			pre = cur;
-			cur = cur->next;
-		}
+	cur = &head;
+	while (cur->value < x)
+		cur = cur->next;
 
-		pre->nodeLock.lock();
-		cur->nodeLock.lock();
-
-		if (Validate(pre, cur))
-		{
-			if (cur->value == x)
-			{
-				pre->nodeLock.unlock();
-				cur->nodeLock.unlock();
-				return true;
-			}
-			else
-			{
-				pre->nodeLock.unlock();
-				cur->nodeLock.unlock();
-				return false;
-			}
-		}
-		else
-		{
-			pre->nodeLock.unlock();
-			cur->nodeLock.unlock();
-		}
-	}
+	return (cur->value == x) &&
+		!cur->marked;
 }
 
 void LList::Print20()
