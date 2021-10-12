@@ -6,7 +6,7 @@ public:
 	int value;
 	LNode* next;
 	std::mutex nodeLock;
-	bool marked;
+	std::atomic<bool> marked;
 	LNode() :value{ 0 }, next{ nullptr }, marked{ false }{}
 	LNode(int x) :value{ x }, next{ nullptr }, marked{ false } {}
 	virtual ~LNode() {}
