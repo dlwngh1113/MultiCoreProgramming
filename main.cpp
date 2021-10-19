@@ -1,13 +1,13 @@
-#include"SPLList.h"
+#include"LFList.h"
 
 using namespace std;
 using namespace chrono;
 
-constexpr int NUM_TEST = 4'000'00;
+constexpr int NUM_TEST = 4'000'000;
 constexpr int MAX_THREADS = 8;
 constexpr int NUM_RANGE = 1000;
 
-SPLList list;
+LFList list;
 set<int> s;
 
 void Benchmark(int num_threads)
