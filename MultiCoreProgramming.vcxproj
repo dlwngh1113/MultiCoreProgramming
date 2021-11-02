@@ -150,6 +150,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="OList.cpp" />
+    <ClCompile Include="CQueue.cpp" />
     <ClCompile Include="sendrecv.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -161,6 +162,7 @@
     <ClInclude Include="LFList.h" />
     <ClInclude Include="LList.h" />
     <ClInclude Include="OList.h" />
+    <ClInclude Include="CQueue.h" />
     <ClInclude Include="SPLList.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

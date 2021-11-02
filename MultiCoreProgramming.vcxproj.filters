@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="List">
+      <UniqueIdentifier>{f0cb1b05-6041-42c5-93bd-ff8f17b2eb2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Queue">
+      <UniqueIdentifier>{1659889c-d4b0-4030-b6b0-545629172a25}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -25,22 +31,25 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CList.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>List</Filter>
     </ClCompile>
     <ClCompile Include="FList.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="OList.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="LList.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SPLList.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>List</Filter>
     </ClCompile>
     <ClCompile Include="LFList.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>List</Filter>
+    </ClCompile>
+    <ClCompile Include="LList.cpp">
+      <Filter>List</Filter>
+    </ClCompile>
+    <ClCompile Include="OList.cpp">
+      <Filter>List</Filter>
+    </ClCompile>
+    <ClCompile Include="SPLList.cpp">
+      <Filter>List</Filter>
+    </ClCompile>
+    <ClCompile Include="CQueue.cpp">
+      <Filter>Queue</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -48,22 +57,25 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CList.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>List</Filter>
     </ClInclude>
     <ClInclude Include="FList.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="OList.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="LList.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SPLList.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>List</Filter>
     </ClInclude>
     <ClInclude Include="LFList.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>List</Filter>
+    </ClInclude>
+    <ClInclude Include="LList.h">
+      <Filter>List</Filter>
+    </ClInclude>
+    <ClInclude Include="OList.h">
+      <Filter>List</Filter>
+    </ClInclude>
+    <ClInclude Include="SPLList.h">
+      <Filter>List</Filter>
+    </ClInclude>
+    <ClInclude Include="CQueue.h">
+      <Filter>Queue</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
