@@ -20,6 +20,26 @@ struct Invocation {
 	InputValue value;
 };
 
+class Node;
+int tmp{ 1 };
+
+class Consensus {
+	int first = -1;
+	std::atomic<int> response = first;
+public:
+	Node* Decide(Node*& node)
+	{
+		if (atomic_compare_exchange_strong(
+			&response,
+			&first,
+			reinterpret_cast<int>(node)
+		))
+			return node;
+		else
+			return reinterpret_cast<Node*>(&response);
+	}
+};
+
 class Node {
 public:
 	Invocation invoc;
@@ -33,25 +53,6 @@ public:
 		invoc = input;
 		next = nullptr;
 		seq = 0;
-	}
-};
-
-Node* gNode = new Node();
-
-class Consensus {
-	Node* first = gNode;
-	std::atomic<Node*> response = first;
-public:
-	Node* Decide(Node*& node)
-	{
-		if (std::atomic_compare_exchange_strong(
-			reinterpret_cast<std::atomic<int>*>(&response),
-			reinterpret_cast<int*>(first),
-			reinterpret_cast<int>(node)
-		))
-			return node;
-		else
-			return reinterpret_cast<Node*>(&response);
 	}
 };
 
