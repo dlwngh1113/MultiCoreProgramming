@@ -1,5 +1,14 @@
 #include "CQueue.h"
 
+bool CQueue::CAS(Node* volatile * addr, Node* old, Node* newNode)
+{
+	int a_addr = reinterpret_cast<int>(addr);
+	return std::atomic_compare_exchange_strong(
+		reinterpret_cast<std::atomic_int*>(a_addr), 
+		reinterpret_cast<int*>(&old), 
+		reinterpret_cast<int>(newNode));
+}
+
 CQueue::CQueue()
 {
 	head = tail = new Node(0);
@@ -12,11 +21,24 @@ CQueue::~CQueue()
 
 void CQueue::Enqueue(int x)
 {
-	enqLock.lock();
-	Node* node = new Node(x);
-	tail->next = node;
-	tail = node;
-	enqLock.unlock();
+	Node* e = new Node(x);
+	while (true)
+	{
+		Node* last = tail;
+		Node* next = last->next;
+		if (last != tail)
+			continue;
+		if (nullptr == next)
+		{
+			if (CAS(&last->next, nullptr, e))
+			{
+				CAS(&tail, last, e);
+				return;
+			}
+		}
+		else
+			CAS(&tail, last, next);
+	}
 }
 
 void CQueue::Init()
@@ -31,21 +53,26 @@ void CQueue::Init()
 
 int CQueue::Dequeue()
 {
-	int value;
-	deqLock.lock();
-	if (head->next == nullptr)
-		value = -1;
-	else
+	while (true)
 	{
-		value = head->next->value;
-		Node* p = head;
-		head = head->next;
-		delete p;
+		Node* first = head;
+		Node* last = tail;
+		Node* next = first->next;
+		if (head != first)
+			continue;
+		if (nullptr == next)
+			return -1;
+		if (first == last)
+		{
+			CAS(&tail, last, next);
+			continue;
+		}
+		int value = next->value;
+		if (!CAS(&head, first, next))
+			continue;
+		delete first;
+		return value;
 	}
-
-	deqLock.unlock();
-
-	return value;
 }
 
 void CQueue::Print20()

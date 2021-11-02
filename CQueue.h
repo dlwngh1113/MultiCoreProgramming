@@ -4,7 +4,7 @@
 class Node {
 public:
 	int value;
-	Node* next;
+	Node* volatile next;
 	Node() :value{ 0 }, next{ nullptr }{}
 	Node(int x) :value{ x }, next{ nullptr }{}
 	virtual ~Node() {}
@@ -12,8 +12,9 @@ public:
 
 class CQueue
 {
-	Node* head, *tail;
-	std::mutex enqLock, deqLock;
+	Node* volatile head;
+	Node* volatile tail;
+	bool CAS(Node* volatile * addr, Node* old, Node* newNode);
 public:
 	CQueue();
 	virtual ~CQueue();
