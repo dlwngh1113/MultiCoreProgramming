@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CList.cpp" />
+    <ClCompile Include="Consensus.cpp" />
     <ClCompile Include="Drill.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -158,9 +159,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CList.h" />
+    <ClInclude Include="Consensus.h" />
     <ClInclude Include="FList.h" />
     <ClInclude Include="LFList.h" />
     <ClInclude Include="LList.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="OList.h" />
     <ClInclude Include="CQueue.h" />
     <ClInclude Include="SPLList.h" />
