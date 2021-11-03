@@ -21,22 +21,25 @@ struct Invocation {
 };
 
 class Node;
-int tmp{ 1 };
 
 class Consensus {
 	int first = -1;
 	std::atomic<int> response = first;
 public:
+	void Init()
+	{
+		first = response = -1;
+	}
+	bool isUsed()
+	{
+		return response != -1;
+	}
 	Node* Decide(Node*& node)
 	{
-		if (atomic_compare_exchange_strong(
-			&response,
-			&first,
-			reinterpret_cast<int>(node)
-		))
+		if (atomic_compare_exchange_strong(&response, &first, reinterpret_cast<int>(node)))
 			return node;
 		else
-			return reinterpret_cast<Node*>(&response);
+			return reinterpret_cast<Node*>(response.load());
 	}
 };
 
@@ -53,6 +56,12 @@ public:
 		invoc = input;
 		next = nullptr;
 		seq = 0;
+	}
+	void Init()
+	{
+		decideNext.Init();
+		next = nullptr;
+		seq = 1;
 	}
 };
 
@@ -84,13 +93,11 @@ class LFUniversal {
 	Node tail;
 	Node* max()
 	{
-		Node* max = head[0];
 		for (int i = 0; i < MAX_THREAD; ++i)
 		{
-			if (max->seq < head[i]->seq)
-				max = head[i];
+			if (!head[i]->decideNext.isUsed())
+				return head[i];
 		}
-		return max;
 	}
 public:
 	LFUniversal()
@@ -108,16 +115,23 @@ public:
 	}
 	void Init()
 	{
-		for(int i=0;i<MAX_THREAD;++i)
+		for (int i = 0; i < MAX_THREAD; ++i)
 		{
-			Node* p = &tail;
-			while (p != head[i])
-			{
-				Node* tmp = p;
-				p = p->next;
-				delete tmp;
-			}
+			head[i] = &tail;
+			announce[i] = &tail;
 		}
+
+		Node* p = tail.next ? tail.next : &tail;
+		while (p->next)
+		{
+			Node* tmp = p;
+			p = p->next;
+			delete tmp;
+		}
+		if (&tail != p)
+			delete p;
+
+		tail.Init();
 	}
 	Response Apply(Invocation invoc, const int threadID)
 	{
@@ -183,7 +197,7 @@ int main()
 		vector<thread> workers;
 		auto beg = high_resolution_clock().now();
 		for (int j = 0; j < i; ++j)
-			workers.emplace_back(Benchmark, MAX_THREAD, i);
+			workers.emplace_back(Benchmark, MAX_THREAD, j);
 		for (auto& t : workers)
 			t.join();
 		auto end = high_resolution_clock().now();
