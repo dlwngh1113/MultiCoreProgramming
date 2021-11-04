@@ -143,6 +143,7 @@
     <ClCompile Include="Drill.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="ebr_lf_queue.cpp" />
     <ClCompile Include="FList.cpp" />
     <ClCompile Include="LFList.cpp" />
     <ClCompile Include="LList.cpp" />

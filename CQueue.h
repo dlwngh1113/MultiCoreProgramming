@@ -10,16 +10,22 @@ public:
 	virtual ~Node() {}
 };
 
-class CQueue
-{
-	Node* volatile head;
-	Node* volatile tail;
-	bool CAS(Node* volatile * addr, Node* old, Node* newNode);
+class StampNode {
 public:
-	CQueue();
-	virtual ~CQueue();
-	void Enqueue(int x);
+	Node* volatile ptr;
+	int volatile stamp;
+};
+
+class StampLFQueue
+{
+	StampNode head, tail;
+	bool CAS(Node* volatile * addr, Node* old, Node* newNode);
+	bool StampCAS(StampNode* addr, Node* old_node, Node* new_node, int old_stamp, int new_stamp);
+public:
+	StampLFQueue();
+	virtual ~StampLFQueue();
 	void Init();
+	void Enqueue(int x);
 	int Dequeue();
 	void Print20();
 };

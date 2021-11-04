@@ -1,6 +1,6 @@
 #include "CQueue.h"
 
-bool CQueue::CAS(Node* volatile * addr, Node* old, Node* newNode)
+bool StampLFQueue::CAS(Node* volatile * addr, Node* old, Node* newNode)
 {
 	int a_addr = reinterpret_cast<int>(addr);
 	return std::atomic_compare_exchange_strong(
@@ -9,75 +9,90 @@ bool CQueue::CAS(Node* volatile * addr, Node* old, Node* newNode)
 		reinterpret_cast<int>(newNode));
 }
 
-CQueue::CQueue()
+bool StampLFQueue::StampCAS(StampNode* addr, Node* old_node, Node* new_node, int old_stamp, int new_stamp)
 {
-	head = tail = new Node(0);
+	StampNode old_p{ old_node, old_stamp };
+	StampNode new_p{ new_node, new_stamp };
+	long long new_value = *(reinterpret_cast<long long*>(&new_p));
+	return std::atomic_compare_exchange_strong(
+		reinterpret_cast<std::atomic_llong*>(addr),
+		reinterpret_cast<long long*>(&old_p),
+		new_value);
 }
 
-CQueue::~CQueue()
+StampLFQueue::StampLFQueue()
+{
+	head.ptr = tail.ptr = new Node();
+	tail.stamp = 0;
+}
+
+StampLFQueue::~StampLFQueue()
 {
 	Init();
+	delete head.ptr;
 }
 
-void CQueue::Enqueue(int x)
+void StampLFQueue::Init()
 {
-	Node* e = new Node(x);
-	while (true)
+	while (head.ptr != tail.ptr)
 	{
-		Node* last = tail;
-		Node* next = last->next;
-		if (last != tail)
-			continue;
-		if (nullptr == next)
-		{
-			if (CAS(&last->next, nullptr, e))
-			{
-				CAS(&tail, last, e);
-				return;
-			}
-		}
-		else
-			CAS(&tail, last, next);
-	}
-}
-
-void CQueue::Init()
-{
-	while (head != tail)
-	{
-		Node* p = head;
-		head = head->next;
+		Node* p = head.ptr;
+		head.ptr = head.ptr->next;
 		delete p;
 	}
 }
 
-int CQueue::Dequeue()
+void StampLFQueue::Enqueue(int x)
+{
+	Node* e = new Node(x);
+	while (true)
+	{
+		StampNode last = tail;
+		Node* next = last.ptr->next;
+		if (last.ptr != tail.ptr)
+			continue;
+		if (nullptr == next)
+		{
+			if (CAS(&(last.ptr->next), nullptr, e))
+			{
+				StampCAS(&tail, last.ptr, e, last.stamp, last.stamp + 1);
+				//CAS(&tail, last, e);
+				return;
+			}
+		}
+		else
+			StampCAS(&tail, last.ptr, next, last.stamp, last.stamp + 1);
+			//CAS(&tail, last, next);
+	}
+}
+
+int StampLFQueue::Dequeue()
 {
 	while (true)
 	{
-		Node* first = head;
-		Node* last = tail;
-		Node* next = first->next;
-		if (head != first)
+		StampNode first = head;
+		StampNode last = tail;
+		Node* next = first.ptr->next;
+		if (head.ptr != first.ptr || (first.stamp != head.stamp))
 			continue;
 		if (nullptr == next)
 			return -1;
-		if (first == last)
+		if (first.ptr == last.ptr)
 		{
-			CAS(&tail, last, next);
+			StampCAS(&tail, last.ptr, next, last.stamp, last.stamp + 1);
 			continue;
 		}
 		int value = next->value;
-		if (!CAS(&head, first, next))
+		if (!StampCAS(&head, first.ptr, next, first.stamp, first.stamp + 1))
 			continue;
-		delete first;
+		delete first.ptr;
 		return value;
 	}
 }
 
-void CQueue::Print20()
+void StampLFQueue::Print20()
 {
-	Node* p = head->next;
+	Node* p = head.ptr->next;
 	for (int i = 0; i < 20; ++i)
 	{
 		if (p == nullptr)
