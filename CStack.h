@@ -12,16 +12,10 @@ public:
 	~Node() {}
 };
 
-class nullmutex {
-public:
-	void lock() {}
-	void unlock() {}
-};
-
 class CStack
 {
-	Node* top;
-	nullmutex topLock;
+	Node* volatile top;
+	bool CAS(Node* old, Node* nNode);
 public:
 	CStack();
 	~CStack();
@@ -30,4 +24,3 @@ public:
 	int Pop();
 	void Print20();
 };
-

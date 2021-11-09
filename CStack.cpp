@@ -1,5 +1,13 @@
 #include "CStack.h"
 
+bool CStack::CAS(Node* old, Node* nNode)
+{
+	return atomic_compare_exchange_strong(
+		reinterpret_cast<volatile atomic_int*>(&top), 
+		reinterpret_cast<int*>(&old), 
+		reinterpret_cast<int>(nNode));
+}
+
 CStack::CStack()
 {
 	top = nullptr;
@@ -22,26 +30,28 @@ void CStack::Init()
 
 void CStack::Push(int x)
 {
-	Node* nNode = new Node{ x };
-	topLock.lock();
-	nNode->next = top;
-	top = nNode;
-	topLock.unlock();
+	while (true)
+	{
+		Node* ptr = top;
+		Node* nNode = new Node{ x };
+		nNode->next = ptr;
+		if (!CAS(ptr, nNode))
+			delete nNode;
+		else
+			break;
+	}
 }
 
 int CStack::Pop()
 {
-	topLock.lock();
-	if (top == nullptr) {
-		topLock.unlock();
-		return -2;
+	while (true)
+	{
+		Node* p = top;
+		if (p == nullptr)
+			return -2;
+		if (CAS(p, p->next))
+			return p->value;
 	}
-	Node* p = top;
-	top = top->next;
-	int val = p->value;
-	delete p;
-	topLock.unlock();
-	return val;
 }
 
 void CStack::Print20()
