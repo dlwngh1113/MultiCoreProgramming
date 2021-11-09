@@ -19,6 +19,9 @@
     <Filter Include="Queue">
       <UniqueIdentifier>{1659889c-d4b0-4030-b6b0-545629172a25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Stack">
+      <UniqueIdentifier>{f17aaee8-5ac9-4206-b7e2-9a2bdb019ef7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -51,6 +54,9 @@
     <ClCompile Include="ebr_lf_queue.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="CStack.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -76,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="CQueue.h">
       <Filter>Queue</Filter>
+    </ClInclude>
+    <ClInclude Include="CStack.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
