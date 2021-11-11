@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"stdafx.h"
 
 using namespace std;
@@ -20,10 +20,18 @@ public:
 		: minDelay(min), maxDelay(max), limit(min) {}
 	void InterruptedException() {
 		int delay = 0;
-		if (limit != 0) delay = rand() % limit;
+		if (limit != 0)
+			delay = rand() % limit;
 		limit *= 2;
-		if (limit > maxDelay) limit = maxDelay;
-		this_thread::sleep_for(chrono::microseconds(delay));;
+		if (limit > maxDelay)
+			limit = maxDelay;
+		int start, current;
+		_asm RDTSC;	//cpu에 존재하는 1클럭에 1증가하는 카운터(RD Time Stamp Counter)
+		_asm mov start, eax;
+		do {
+			_asm RDTSC;
+			_asm mov current, eax;
+		} while ((current - start) < delay);
 	}
 };
 
