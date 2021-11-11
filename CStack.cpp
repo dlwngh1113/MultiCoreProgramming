@@ -30,13 +30,17 @@ void CStack::Init()
 
 void CStack::Push(int x)
 {
+	BackOff bo{ 1, 100 };
 	while (true)
 	{
 		Node* ptr = top;
 		Node* nNode = new Node{ x };
 		nNode->next = ptr;
 		if (!CAS(ptr, nNode))
+		{
 			delete nNode;
+			bo.InterruptedException();
+		}
 		else
 			break;
 	}
@@ -44,6 +48,7 @@ void CStack::Push(int x)
 
 int CStack::Pop()
 {
+	BackOff bo{ 1, 100 };
 	while (true)
 	{
 		Node* p = top;
@@ -51,6 +56,8 @@ int CStack::Pop()
 			return -2;
 		if (CAS(p, p->next))
 			return p->value;
+		else
+			bo.InterruptedException();
 	}
 }
 
