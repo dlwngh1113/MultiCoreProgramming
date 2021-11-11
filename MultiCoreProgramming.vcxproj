@@ -148,6 +148,7 @@
     <ClCompile Include="FList.cpp" />
     <ClCompile Include="LFList.cpp" />
     <ClCompile Include="LList.cpp" />
+    <ClCompile Include="LockFreeExchanger.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -161,6 +162,7 @@
     <ClInclude Include="FList.h" />
     <ClInclude Include="LFList.h" />
     <ClInclude Include="LList.h" />
+    <ClInclude Include="LockFreeExchanger.h" />
     <ClInclude Include="OList.h" />
     <ClInclude Include="CQueue.h" />
     <ClInclude Include="SPLList.h" />

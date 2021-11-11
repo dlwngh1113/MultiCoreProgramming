@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include"stdafx.h"
+#include"LockFreeExchanger.h"
 
 using namespace std;
 
@@ -12,25 +12,22 @@ public:
 	~Node() {}
 };
 
-class BackOff {
-	int minDelay, maxDelay;
-	int limit;
+class EliminationArray {
+	int range;
+	int numThreads;
+	LockFreeExchanger exchanger[MAX_THREADS];
 public:
-	BackOff(int min, int max)
-		: minDelay(min), maxDelay(max), limit(min) {}
-	void InterruptedException() {
-		int delay = 0;
-		if (0 != limit) delay = rand() % limit;
-		if (0 == delay) return;
-		limit += limit;
-		if (limit > maxDelay) limit = maxDelay;
-		_asm mov eax, delay;
-	myloop:
-		_asm dec eax
-		_asm jnz myloop;
+	EliminationArray(int numThreads) : numThreads{ numThreads }, range{ 1 } { }
+	~EliminationArray() {}
+	int Visit(int value, bool* time_out) {
+		int slot = rand() % range;
+		bool busy;
+		int ret = exchanger[slot].Exchange(value, time_out, &busy);
+		if ((true == *time_out) && (range > 1)) range--;
+		if ((true == busy) && (range <= numThreads / 2)) range++;
+		// MAX RANGE is # of thread / 2
 	}
 };
-
 
 class CStack
 {

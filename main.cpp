@@ -3,10 +3,6 @@
 using namespace std;
 using namespace chrono;
 
-constexpr int NUM_TEST = 10'000'000;
-constexpr int MAX_THREADS = 8;
-constexpr int NUM_RANGE = 1000;
-
 CStack myStack;
 set<int> s;
 
