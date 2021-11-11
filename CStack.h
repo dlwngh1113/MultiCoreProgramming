@@ -20,18 +20,14 @@ public:
 		: minDelay(min), maxDelay(max), limit(min) {}
 	void InterruptedException() {
 		int delay = 0;
-		if (limit != 0)
-			delay = rand() % limit;
-		limit *= 2;
-		if (limit > maxDelay)
-			limit = maxDelay;
-		int start, current;
-		_asm RDTSC;	//cpu에 존재하는 1클럭에 1증가하는 카운터(RD Time Stamp Counter)
-		_asm mov start, eax;
-		do {
-			_asm RDTSC;
-			_asm mov current, eax;
-		} while ((current - start) < delay);
+		if (0 != limit) delay = rand() % limit;
+		if (0 == delay) return;
+		limit += limit;
+		if (limit > maxDelay) limit = maxDelay;
+		_asm mov eax, delay;
+	myloop:
+		_asm dec eax
+		_asm jnz myloop;
 	}
 };
 
