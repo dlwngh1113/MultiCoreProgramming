@@ -10,6 +10,7 @@ int LockFreeExchanger::Exchange(int value, bool* timeOut, bool* busy)
         switch (state)
         {
         case EMPTY:
+        {
             unsigned int newVal = value | (WAITING << 30);
             if (std::atomic_compare_exchange_strong(&slot, &curSlot, newVal))
             {
@@ -30,6 +31,7 @@ int LockFreeExchanger::Exchange(int value, bool* timeOut, bool* busy)
             {
                 continue;
             }
+        }
             break;
         case WAITING:
         {
@@ -50,7 +52,6 @@ int LockFreeExchanger::Exchange(int value, bool* timeOut, bool* busy)
             *timeOut = false;
             *busy = true;
             return 0;
-            break;
         }
     }
 }

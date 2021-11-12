@@ -18,14 +18,15 @@ class EliminationArray {
 	LockFreeExchanger exchanger[MAX_THREADS];
 public:
 	EliminationArray(int numThreads) : numThreads{ numThreads }, range{ 1 } { }
+	EliminationArray() :numThreads{ MAX_THREADS }, range{ 1 }{}
 	~EliminationArray() {}
 	int Visit(int value, bool* time_out) {
 		int slot = rand() % range;
 		bool busy;
 		int ret = exchanger[slot].Exchange(value, time_out, &busy);
-		if ((true == *time_out) && (range > 1)) range--;
-		if ((true == busy) && (range <= numThreads / 2)) range++;
-		// MAX RANGE is # of thread / 2
+		if ((true == *time_out) && (range > 1)) --range;
+		if ((true == busy) && (range <= numThreads / 2)) ++range;
+		return ret;
 	}
 };
 
@@ -33,6 +34,7 @@ class CStack
 {
 	Node* volatile top;
 	bool CAS(Node* old, Node* nNode);
+	EliminationArray ary;
 public:
 	CStack();
 	~CStack();

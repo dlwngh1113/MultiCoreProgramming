@@ -36,7 +36,19 @@ void CStack::Push(int x)
 		Node* nNode = new Node{ x };
 		nNode->next = ptr;
 		if (!CAS(ptr, nNode))
-			delete nNode;
+		{
+			bool timeOut = false;
+			int ret = ary.Visit(x, &timeOut);
+			if (!timeOut)
+			{
+				if (ret == -1)
+					break;
+				else
+					continue;
+			}
+			else
+				continue;
+		}
 		else
 			break;
 	}
@@ -51,6 +63,20 @@ int CStack::Pop()
 			return -2;
 		if (CAS(p, p->next))
 			return p->value;
+		else
+		{
+			bool timeOut = false;
+			int ret = ary.Visit(-1, &timeOut);
+			if (!timeOut)
+			{
+				if (ret != -1)
+					return ret;
+				else
+					continue;
+			}
+			else
+				continue;
+		}
 	}
 }
 
