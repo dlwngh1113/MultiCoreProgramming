@@ -30,10 +30,10 @@ void CStack::Init()
 
 void CStack::Push(int x)
 {
+	Node* nNode = new Node{ x };
 	while (true)
 	{
 		Node* ptr = top;
-		Node* nNode = new Node{ x };
 		nNode->next = ptr;
 		if (!CAS(ptr, nNode))
 		{
@@ -69,10 +69,10 @@ int CStack::Pop()
 			int ret = ary.Visit(-1, &timeOut);
 			if (!timeOut)
 			{
-				if (ret != -1)
-					return ret;
-				else
+				if (ret == -1)
 					continue;
+				else
+					return ret;
 			}
 			else
 				continue;

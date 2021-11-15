@@ -5,7 +5,6 @@ int LockFreeExchanger::Exchange(int value, bool* timeOut, bool* busy)
     while (true)
     {
         unsigned int curSlot = slot;
-        int value = curSlot & 0xCFFFFFFF;
         int state = curSlot >> 30;
         switch (state)
         {
@@ -16,30 +15,35 @@ int LockFreeExchanger::Exchange(int value, bool* timeOut, bool* busy)
             {
                 for (int i = 0; i < 10; ++i)
                 {
-                    if (BUSY == slot >> 30)
+                    if (BUSY == (slot >> 30))
                     {
                         int retValue = slot & 0xCFFFFFFF;
                         slot = 0;
                         return retValue;
                     }
                 }
-                *timeOut = true;
-                *busy = false;
-                return 0;
+                curSlot = slot;
+                if (std::atomic_compare_exchange_strong(&slot, &curSlot, 0))
+                {
+                    *timeOut = true;
+                    *busy = false;
+                    return 0;
+                }
+                else
+                {
+                    int retValue = slot & 0xCFFFFFFF;
+                    slot = 0;
+                    return retValue;
+                }
             }
             else
-            {
                 continue;
-            }
         }
-            break;
         case WAITING:
         {
             int newVal = value | (BUSY << 30);
             if (std::atomic_compare_exchange_strong(&slot, &curSlot, newVal))
-            {
-                return value;
-            }
+                return (curSlot & 0xCFFFFFFF);
             else
             {
                 *timeOut = false;
@@ -47,7 +51,6 @@ int LockFreeExchanger::Exchange(int value, bool* timeOut, bool* busy)
                 return 0;
             }
         }
-            break;
         case BUSY:
             *timeOut = false;
             *busy = true;

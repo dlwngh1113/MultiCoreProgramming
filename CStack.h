@@ -22,10 +22,10 @@ public:
 	~EliminationArray() {}
 	int Visit(int value, bool* time_out) {
 		int slot = rand() % range;
-		bool busy;
+		bool busy{ false };
 		int ret = exchanger[slot].Exchange(value, time_out, &busy);
-		if ((true == *time_out) && (range > 1)) --range;
-		if ((true == busy) && (range <= numThreads / 2)) ++range;
+		if ((*time_out) && (range > 1)) --range;
+		if (busy && (range <= numThreads / 2)) ++range;
 		return ret;
 	}
 };
