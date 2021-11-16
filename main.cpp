@@ -1,9 +1,9 @@
-#include"CStack.h"
+#include"SkipList.h"
 
 using namespace std;
 using namespace chrono;
 
-CStack myStack;
+SkipList myList;
 set<int> s;
 
 void Benchmark(int num_threads)
@@ -11,10 +11,11 @@ void Benchmark(int num_threads)
 	const int loops = NUM_TEST / num_threads;
 	for (int i = 0; i < loops; ++i)
 	{
-		if ((0 == rand() % 2) || (i < 1000 / num_threads))
-			myStack.Push(i);
+		int num = rand() % NUM_RANGE;
+		if (rand() % 2)
+			myList.Add(num);
 		else
-			myStack.Pop();
+			myList.Remove(num);
 	}
 }
 
@@ -51,14 +52,14 @@ int main()
 	for (int i = 1; i <= MAX_THREADS; i *= 2)
 	{
 		vector<thread> workers;
-		myStack.Init();
+		myList.Init();
 		auto beg = high_resolution_clock().now();
 		for(int j = 0;j<i;++j)
 			workers.emplace_back(Benchmark, i);
 		for (auto& t : workers)
 			t.join();
 		auto end = high_resolution_clock().now();
-		myStack.Print20();
+		myList.Print20();
 		auto duration = end - beg;
 		cout << i << " threads, exec time = " << duration_cast<milliseconds>(duration).count() << endl;
 	}

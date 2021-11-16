@@ -22,6 +22,9 @@
     <Filter Include="Stack">
       <UniqueIdentifier>{f17aaee8-5ac9-4206-b7e2-9a2bdb019ef7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SkipList">
+      <UniqueIdentifier>{1fed6253-0add-4d70-aa07-18d0b0f6fd6f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -57,8 +60,11 @@
     <ClCompile Include="CStack.cpp">
       <Filter>Stack</Filter>
     </ClCompile>
+    <ClCompile Include="SkipList.cpp">
+      <Filter>SkipList</Filter>
+    </ClCompile>
     <ClCompile Include="LockFreeExchanger.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>Stack</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -89,8 +95,11 @@
     <ClInclude Include="CStack.h">
       <Filter>Stack</Filter>
     </ClInclude>
+    <ClInclude Include="SkipList.h">
+      <Filter>SkipList</Filter>
+    </ClInclude>
     <ClInclude Include="LockFreeExchanger.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>Stack</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

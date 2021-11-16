@@ -154,6 +154,7 @@
     </ClCompile>
     <ClCompile Include="OList.cpp" />
     <ClCompile Include="CQueue.cpp" />
+    <ClCompile Include="SkipList.cpp" />
     <ClCompile Include="SPLList.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -165,6 +166,7 @@
     <ClInclude Include="LockFreeExchanger.h" />
     <ClInclude Include="OList.h" />
     <ClInclude Include="CQueue.h" />
+    <ClInclude Include="SkipList.h" />
     <ClInclude Include="SPLList.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
