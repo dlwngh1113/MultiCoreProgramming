@@ -12,10 +12,18 @@ void Benchmark(int num_threads)
 	for (int i = 0; i < loops; ++i)
 	{
 		int num = rand() % NUM_RANGE;
-		if (rand() % 2)
+		switch (rand() % 3)
+		{
+		case 0:
 			myList.Add(num);
-		else
+			break;
+		case 1:
 			myList.Remove(num);
+			break;
+		case 2:
+			myList.Contains(num);
+			break;
+		}
 	}
 }
 
