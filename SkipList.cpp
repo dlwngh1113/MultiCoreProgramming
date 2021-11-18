@@ -63,9 +63,8 @@ bool SkipList::Remove(int x)
 
 	if(cur[0]->value == x)
 	{
-		for (int i = 0; i <= MAX_LEVEL; ++i)
-			if (pre[i]->next[i] != &tail)
-				pre[i]->next[i] = cur[i]->next[i];
+		for (int i = 0; i <= cur[0]->topLevel; ++i)
+			pre[i]->next[i] = cur[i]->next[i];
 		delete cur[0];
 		Lock.unlock();
 		return true;
