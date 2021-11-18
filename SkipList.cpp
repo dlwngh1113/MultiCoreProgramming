@@ -28,60 +28,62 @@ void SkipList::Init()
 bool SkipList::Add(int x)
 {
 	SKNode* pre[MAX_LEVEL + 1], * cur[MAX_LEVEL + 1];
-	int fLevel = Find(x, pre, cur);
+
+	int nLevel = 0;
+	while (rand() % 2)
+	{
+		++nLevel;
+		if (MAX_LEVEL == nLevel)
+			break;
+	}
 
 	while (true)
 	{
+		retry:
+		int fLevel = Find(x, pre, cur);
 		if (fLevel != -1)
 		{
-			if (cur[fLevel]->isMarked)
-				continue;
-			while (!cur[fLevel]->fullyLinked);
-			return false;
+			if (!cur[fLevel]->isMarked)
+			{
+				while (!cur[fLevel]->fullyLinked);
+				return false;
+			}
+			continue;
 		}
 		//노드가 존재하지 않음
 		//locking 시도
-		int nLevel = 0;
-		while (rand() % 2)
-		{
-			++nLevel;
-			if (MAX_LEVEL == nLevel)
-				break;
-		}
-
-		int isValid = true;
 		int maxLockLevel = -1;
-		for (int i = 0; i <= nLevel; ++i)
-		{
-			pre[i]->nodeLock.lock();
-			maxLockLevel = i;
-			if (!pre[i]->isMarked &&
-				(!cur[i]->isMarked) &&
-				(pre[i]->next[i] == cur[i]));
-			else
+		while(true) {
+			SKNode* pred, * curr;
+			int isValid = true;
+
+			for (int i = 0; i <= nLevel; ++i)
 			{
-				isValid = false;
-				break;
+				pred = pre[i];
+				curr = cur[i];
+				pred->nodeLock.lock();
+				maxLockLevel = i;
+				isValid = (!pred->isMarked &&
+					(!curr->isMarked) &&
+					(pred->next[i] == curr));
+				if (!isValid)
+				{
+					for (int i = 0; i <= maxLockLevel; ++i)
+						pre[i]->nodeLock.unlock();
+					goto retry;
+				}
 			}
-		}
+			SKNode* nNode = new SKNode(x, nLevel);
+			for (int i = 0; i <= nLevel; ++i)
+				nNode->next[i] = cur[i];
+			for (int i = 0; i <= nLevel; ++i)
+				pre[i]->next[i] = nNode;
+			nNode->fullyLinked = true;
 
-		if (!isValid)
-		{
-			for (int i = 0; i < maxLockLevel; ++i)
+			for (int i = 0; i <= maxLockLevel; ++i)
 				pre[i]->nodeLock.unlock();
-			continue;
+			return true;
 		}
-		SKNode* e = new SKNode(x, nLevel);
-		for (int i = 0; i <= nLevel; ++i)
-			e->next[i] = cur[i];
-		for (int i = 0; i <= nLevel; ++i)
-			pre[i]->next[i] = e;
-		e->fullyLinked = true;
-
-		for (int i = 0; i <= MAX_LEVEL; ++i)
-			pre[i]->nodeLock.unlock();
-
-		return true;
 	}
 }
 
@@ -94,14 +96,15 @@ bool SkipList::Remove(int x)
 
 	while (true)
 	{
+		retry:
 		int lFound = Find(x, pre, cur);
 		if (lFound != -1)
 			victim = cur[lFound];
 		if (isMarked ||
-			(lFound != -1) &&
+			((lFound != -1) &&
 			(victim->fullyLinked) &&
 			(victim->topLevel == lFound) &&
-			(!victim->isMarked))
+			(!victim->isMarked)))
 		{
 			if (!isMarked)
 			{
@@ -120,7 +123,7 @@ bool SkipList::Remove(int x)
 			{
 				SKNode* pred, * cur;
 				bool valid{ true };
-				for (int i = 0; i < topLevel; ++i)
+				for (int i = 0; i <= topLevel; ++i)
 				{
 					pred = pre[i];
 					pred->nodeLock.lock();
@@ -130,17 +133,17 @@ bool SkipList::Remove(int x)
 					{
 						for (int i = 0; i <= highLocked; ++i)
 							pre[i]->nodeLock.unlock();
-						continue;
+						goto retry;
 					}
-					for (int i = topLevel; i >= 0; --i)
-					{
-						pre[i]->next[i] = victim->next[i];
-					}
-					victim->nodeLock.unlock();
-					for (int i = 0; i <= highLocked; ++i)
-						pre[i]->nodeLock.unlock();
-					return true;
 				}
+				for (int i = topLevel; i >= 0; --i)
+				{
+					pre[i]->next[i] = victim->next[i];
+				}
+				victim->nodeLock.unlock();
+				for (int i = 0; i <= highLocked; ++i)
+					pre[i]->nodeLock.unlock();
+				return true;
 			}
 		}
 		else
