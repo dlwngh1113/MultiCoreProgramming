@@ -6,6 +6,7 @@
 #include<atomic>
 #include<vector>
 #include<set>
+#include<omp.h>
 
 constexpr int NUM_TEST = 4'000'000;
 constexpr int MAX_THREADS = 8;
