@@ -102,4 +102,12 @@
       <Filter>Stack</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="tbb12.dll">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="tbb12.pdb">
+      <Filter>리소스 파일</Filter>
+    </None>
+  </ItemGroup>
 </Project>
