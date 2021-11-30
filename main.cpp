@@ -17,7 +17,11 @@ int main()
 
 	sum = 0;
 	start = system_clock::now();
-	tbb::parallel_for(0, NUM_TEST, 1, [&sum](int i) {sum += 2; });
+	constexpr int CHUNK = NUM_TEST / 8;
+	tbb::parallel_for(0, NUM_TEST / CHUNK, 1, [&sum, &CHUNK](int i) {
+		volatile int localSum = 0;
+		for (int i = 0; i < CHUNK; ++i) localSum += 2;
+		sum += localSum; });
 	end = system_clock::now();
 	execTime = end - start;
 	cout << "tbb multi thread sum = " << sum;
@@ -28,7 +32,9 @@ int main()
 	thread threads[4];
 	for (auto& th : threads)
 		th = thread{ [&sum](int num) {
-		for (int i = 0; i < NUM_TEST / num; ++i) sum += 2;
+		volatile int localSum = 0;
+		for (int i = 0; i < NUM_TEST / num; ++i) localSum += 2;
+		sum += localSum;
 	}, MAX_THREADS };
 	for (auto& th : threads)
 		th.join();
