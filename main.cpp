@@ -37,4 +37,18 @@ int main()
 	duration = end - start;
 	cout << "thread [BCD] = " << tbb_table["BCD"];
 	cout << " Exec time = " << duration_cast<milliseconds>(duration).count() << endl;
+
+	tbb::concurrent_hash_map<string, atomic_int> hash_table;
+	start = system_clock::now();
+	tbb::parallel_for(0, NUM_TEST, 1, [&hash_table](int i) {
+		tbb::concurrent_hash_map<string, atomic_int>::accessor a;
+		hash_table.insert(a, words[i]);
+		a->second++;
+		});
+	end = system_clock::now();
+	duration = end - start;
+	tbb::concurrent_hash_map<string, atomic_int>::accessor a;
+	hash_table.find(a, "BCD");
+	cout << "thread [BCD] = " << a->second;
+	cout << " Exec time = " << duration_cast<milliseconds>(duration).count() << endl;
 }
