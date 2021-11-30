@@ -2,44 +2,39 @@
 using namespace std;
 using namespace chrono;
 
+string words[NUM_TEST];
+
 int main()
 {
-	atomic_int sum = 0;
-	auto start = system_clock::now();
 	for (int i = 0; i < NUM_TEST; ++i)
 	{
-		sum += 2;
+		int len = rand() % 5;
+		for (int j = 0; j < len; ++j)
+		{
+			char ch = 'A' + rand() % 26;
+			words[i] += ch;
+		}
 	}
+
+	cout << "Randodm Book Generated\n";
+
+	unordered_map<string, int> table;
+	auto start = system_clock::now();
+	for (auto& s : words)
+		table[s]++;
 	auto end = system_clock::now();
-	auto execTime = end - start;
-	cout << "single thread sum = " << sum;
-	cout << " exec time = " << duration_cast<milliseconds>(execTime).count() << endl;
+	auto duration = end - start;
+	cout << "single thread [BCD] = " << table["BCD"];
+	cout << " Exec time = " << duration_cast<milliseconds>(duration).count() << endl;
 
-	sum = 0;
-	start = system_clock::now();
-	constexpr int CHUNK = NUM_TEST / 8;
-	tbb::parallel_for(0, NUM_TEST / CHUNK, 1, [&sum, &CHUNK](int i) {
-		volatile int localSum = 0;
-		for (int i = 0; i < CHUNK; ++i) localSum += 2;
-		sum += localSum; });
-	end = system_clock::now();
-	execTime = end - start;
-	cout << "tbb multi thread sum = " << sum;
-	cout << " exec time = " << duration_cast<milliseconds>(execTime).count() << endl;
 
-	sum = 0;
+	tbb::concurrent_unordered_map<string, atomic_int> tbb_table;
 	start = system_clock::now();
-	thread threads[4];
-	for (auto& th : threads)
-		th = thread{ [&sum](int num) {
-		volatile int localSum = 0;
-		for (int i = 0; i < NUM_TEST / num; ++i) localSum += 2;
-		sum += localSum;
-	}, MAX_THREADS };
-	for (auto& th : threads)
-		th.join();
+	tbb::parallel_for(0, NUM_TEST, 1, [&tbb_table](int i) {
+		tbb_table[words[i]]++;
+		});
 	end = system_clock::now();
-	execTime = end - start;
-	cout << "multi thread sum = " << sum;
-	cout << " exec time = " << duration_cast<milliseconds>(execTime).count() << endl;
+	duration = end - start;
+	cout << "thread [BCD] = " << tbb_table["BCD"];
+	cout << " Exec time = " << duration_cast<milliseconds>(duration).count() << endl;
 }
