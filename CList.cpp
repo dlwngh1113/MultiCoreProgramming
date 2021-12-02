@@ -80,18 +80,18 @@ bool CList::Contains(int x)
 	CNode* cur;
 
 	cur = &head;
-	Lock.lock();
+	Lock.lock_shared();
 
 	while (cur->value < x)
 		cur = cur->next;
 
 	if (cur->value == x)
 	{
-		Lock.unlock();
+		Lock.unlock_shared();
 		return true;
 	}
 
-	Lock.unlock();
+	Lock.unlock_shared();
 	return false;
 }
 

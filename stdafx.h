@@ -8,11 +8,12 @@
 #include<set>
 #include<string>
 #include<omp.h>
-#include<tbb/parallel_for.h>
 #include<unordered_map>
-#include<tbb/concurrent_unordered_map.h>
-#include<tbb/concurrent_hash_map.h>
+//#include<tbb/parallel_for.h>
+//#include<tbb/concurrent_unordered_map.h>
+//#include<tbb/concurrent_hash_map.h>
+#include<shared_mutex>
 
-constexpr int NUM_TEST = 50'000'000;
-constexpr int MAX_THREADS = 4;
+constexpr int NUM_TEST = 4'000'000;
+constexpr int MAX_THREADS = 8;
 constexpr int NUM_RANGE = 1000;

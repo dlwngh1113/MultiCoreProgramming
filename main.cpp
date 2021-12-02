@@ -1,54 +1,44 @@
-#include"stdafx.h"
+#include"CList.h"
+
 using namespace std;
 using namespace chrono;
 
-string words[NUM_TEST];
+CList myList;
+
+void Benchmark(int num_threads)
+{
+	for (int i = 0; i < NUM_TEST / num_threads; ++i)
+	{
+		int value = rand() % NUM_RANGE;
+		switch (rand() % 100)
+		{
+		case 0:
+			myList.Add(value);
+			break;
+		case 1:
+			myList.Remove(value);
+			break;
+		default:
+			myList.Contains(value);
+			break;
+		}
+	}
+}
 
 int main()
 {
-	for (int i = 0; i < NUM_TEST; ++i)
+	for (int i = 1; i <= MAX_THREADS; i *= 2)
 	{
-		int len = rand() % 5;
-		for (int j = 0; j < len; ++j)
-		{
-			char ch = 'A' + rand() % 26;
-			words[i] += ch;
-		}
+		vector<thread> workers;
+		myList.Init();
+		auto beg = high_resolution_clock().now();
+		for (int j = 0; j < i; ++j)
+			workers.emplace_back(Benchmark, i);
+		for (auto& t : workers)
+			t.join();
+		auto end = high_resolution_clock().now();
+		myList.Print20();
+		auto duration = end - beg;
+		cout << i << " threads, exec time = " << duration_cast<milliseconds>(duration).count() << endl;
 	}
-
-	cout << "Randodm Book Generated\n";
-
-	unordered_map<string, int> table;
-	auto start = system_clock::now();
-	for (auto& s : words)
-		table[s]++;
-	auto end = system_clock::now();
-	auto duration = end - start;
-	cout << "single thread [BCD] = " << table["BCD"];
-	cout << " Exec time = " << duration_cast<milliseconds>(duration).count() << endl;
-
-
-	tbb::concurrent_unordered_map<string, atomic_int> tbb_table;
-	start = system_clock::now();
-	tbb::parallel_for(0, NUM_TEST, 1, [&tbb_table](int i) {
-		tbb_table[words[i]]++;
-		});
-	end = system_clock::now();
-	duration = end - start;
-	cout << "thread [BCD] = " << tbb_table["BCD"];
-	cout << " Exec time = " << duration_cast<milliseconds>(duration).count() << endl;
-
-	tbb::concurrent_hash_map<string, atomic_int> hash_table;
-	start = system_clock::now();
-	tbb::parallel_for(0, NUM_TEST, 1, [&hash_table](int i) {
-		tbb::concurrent_hash_map<string, atomic_int>::accessor a;
-		hash_table.insert(a, words[i]);
-		a->second++;
-		});
-	end = system_clock::now();
-	duration = end - start;
-	tbb::concurrent_hash_map<string, atomic_int>::accessor a;
-	hash_table.find(a, "BCD");
-	cout << "thread [BCD] = " << a->second;
-	cout << " Exec time = " << duration_cast<milliseconds>(duration).count() << endl;
 }

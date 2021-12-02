@@ -12,7 +12,7 @@ public:
 
 class CList {
 	CNode head, tail;
-	std::mutex Lock;
+	std::shared_mutex Lock;
 public:
 	CList();
 	virtual ~CList();
